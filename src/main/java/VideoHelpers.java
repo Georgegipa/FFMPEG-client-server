@@ -1,17 +1,8 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
-public class VideoRetriever {
-    private static String videopath;
+public class VideoHelpers {
+
     private static final String supportedextensions[] = "mp4,avi,mkv".split(",");
-
-    public static void setVideopath(String videopath) {
-        VideoRetriever.videopath = videopath;
-    }
-
-    public static String getVideopath() {
-        return videopath;
-    }
 
     private static boolean isSupported(String extension) {
         for (String supportedextension : supportedextensions) {
@@ -46,7 +37,21 @@ public class VideoRetriever {
         return null;
     }
 
+    public static String recreateName(String name,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) {
+        return name + "-" + VideoProperty.convertResolution(res) + "p." + VideoProperty.convertExtension(ext);
+    }
 
+    public static String removeFilefromPath(String path) {
+        int index = path.lastIndexOf("\\");
+        if (index != -1)
+            return path.substring(0, index + 1);
+        return path;
+    }
 
+    //check if file exists
+    public static boolean fileExists(String path) {
+        File f = new File(path);
+        return f.exists();
+    }
 }
 

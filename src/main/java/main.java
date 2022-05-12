@@ -13,7 +13,7 @@ public class main {
         HashMap<String, VideoType> videoList = new HashMap<String, VideoType>();
 
         for (String file : files) {
-            SimpleVideo v = VideoRetriever.getVideoDetails(file);
+            SimpleVideo v = VideoHelpers.getVideoDetails(file);
             //print the video details
             if (v != null) {//null if the file is not a video
                 System.out.println(v.getVideoName());
@@ -59,7 +59,7 @@ public class main {
         HashMap<String, VideoDetails> videoList = new HashMap<String, VideoDetails>();
 
         for (String file : files) {//Loop για κάθε αρχείο που βρέθηκε
-            SimpleVideo v = VideoRetriever.getVideoDetails(file);
+            SimpleVideo v = VideoHelpers.getVideoDetails(file);
             if (v != null) {//null επιστρέφεται αν το αρχείο δεν είναι βίντεο
                 VideoProperty.VideoExtension ex = VideoProperty.convertExtension(v.getVideoExtension());
                 VideoProperty.Resolution res = VideoProperty.convertResolution(v.getResolution());
@@ -73,8 +73,32 @@ public class main {
                 }
             }
         }
-        printVideoList(videoList);
 
+        //printVideoList(videoList);
+        FFBuilder builder = new FFBuilder();
+//        for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
+//            VideoDetails temp = entry.getValue();
+//            builder.build(temp.getVideopath(), temp.getVideoName(), VideoProperty.VideoExtension.EXTENSION_MKV, VideoProperty.Resolution.RESOLUTION_360);
+//        }
+        for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
+            VideoDetails temp = entry.getValue();
+            //loop through all video extensions and resolutions
+            for (VideoProperty.VideoExtension ext : VideoProperty.VideoExtension.values()) {
+                //loop until the video has the max resolution
+                for (VideoProperty.Resolution res : VideoProperty.Resolution.values()) {
+                    String newVideo = VideoHelpers.recreateName(temp.getVideoName(), ext, res);
+                    //if the video has reached the max resolution, break the loop
+                    if (res.ordinal() > temp.getMaxResolution().ordinal())
+                        break;
+                    if(VideoHelpers.fileExists(videopath+ "\\" + newVideo))//check if file exists
+                        continue;
+                    else //video does not exist
+                    {
+                        builder.build(temp.getVideopath(), temp.getVideoName(), ext, res);
+                    }
+                }
+            }
+        }
 
     }
 

@@ -7,11 +7,7 @@ public class VideoDetails implements Serializable {
     private VideoProperty.VideoExtension maxResolutionExtension;
 
     private void updatePath() {
-        String temp = videoName + "-" + VideoProperty.convertResolution(this.maxResolution) + "p." + VideoProperty.convertExtension(this.maxResolutionExtension);
-        int index = videopath.lastIndexOf("\\");
-        if (index != -1)
-            videopath = videopath.substring(0, index + 1);
-        videopath += temp;
+        videopath = VideoHelpers.removeFilefromPath(videopath) + VideoHelpers.recreateName(videoName, maxResolutionExtension, maxResolution);
     }
 
     public void setVideo(SimpleVideo video) {
