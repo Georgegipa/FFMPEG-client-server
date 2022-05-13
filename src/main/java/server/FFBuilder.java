@@ -10,18 +10,17 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 public class FFBuilder {
-    private static String videopath = Paths.videoPath;
     private static Logger log = LogManager.getLogger(FFBuilder.class);
 
-    private FFmpeg ffmpeg = null;
-    private FFprobe ffprobe = null;
+    private final FFmpeg ffmpeg;
+    private final FFprobe ffprobe;
 
     FFBuilder() throws IOException {
         ffmpeg = new FFmpeg(Paths.ffmpegbinPath + "\\ffmpeg.exe");
         ffprobe = new FFprobe(Paths.ffmpegbinPath + "\\ffprobe.exe");
     }
 
-    public void build(String path,String videoName,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) throws IOException {
+    public void build(String path,String videoName,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) {
         String destination = VideoHelpers.removeFilefromPath(path);
         String fileName = VideoHelpers.recreateName(videoName,ext,res);
         log.debug("Creating New Video:"+ fileName);

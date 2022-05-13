@@ -11,36 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class main {
-    private static String videopath = server.Paths.videoPath;
-    private static Logger log = LogManager.getLogger(main.class);
-
-    @Deprecated
-    private static void fileToVideoList(List<String> files) {
-        HashMap<String, VideoType> videoList = new HashMap<String, VideoType>();
-
-        for (String file : files) {
-            SimpleVideo v = VideoHelpers.getVideoDetails(file);
-            //print the video details
-            if (v != null) {//null if the file is not a video
-                System.out.println(v.getVideoName());
-                System.out.println(v.getResolution());
-                System.out.println(v.getVideoExtension());
-                System.out.println(v.getVideopath());
-
-                VideoProperty.VideoExtension ex = VideoProperty.convertExtension(v.getVideoExtension());
-                VideoProperty.Resolution res = VideoProperty.convertResolution(v.getResolution());
-
-                if (videoList.containsKey(v.getVideoName())) //video with the same name already exists
-                    videoList.get(v.getVideoName()).addVideoProperty(ex, res);//add resolution and extension to the video
-                else {//new video
-                    VideoType vt = new VideoType();
-                    vt.setVideo(v);
-                    vt.addVideoProperty(ex, res);
-                    videoList.put(v.getVideoName(), vt);
-                }
-            }
-        }
-    }
+    private static final Logger log = LogManager.getLogger(main.class);
 
     private static void printVideoList(HashMap<String, VideoDetails> videoList) {
         for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
@@ -55,14 +26,14 @@ public class main {
     }
 
     public static void main(String[] args) throws IOException {
-        log.debug("Starting");
+        log.debug("Server Starting...");
         List<String> files =
-                Files.list(Paths.get(videopath))
+                Files.list(Paths.get(server.Paths.videoPath))
                         .filter(path -> !Files.isDirectory(path))
                         .map(Path::toString)
                         .collect(Collectors.toList());
 
-        HashMap<String, VideoDetails> videoList = new HashMap<String, VideoDetails>();
+        HashMap<String, VideoDetails> videoList = new HashMap<>();
 
         for (String file : files) {//Loop για κάθε αρχείο που βρέθηκε
             SimpleVideo v = VideoHelpers.getVideoDetails(file);
@@ -87,10 +58,6 @@ public class main {
 
         FFBuilder builder = new FFBuilder();
 
-//        for (Map.Entry<String, server.VideoDetails> entry : videoList.entrySet()) {
-//            server.VideoDetails temp = entry.getValue();
-//            builder.build(temp.getVideopath(), temp.getVideoName(), server.VideoProperty.VideoExtension.EXTENSION_MKV, server.VideoProperty.Resolution.RESOLUTION_360);
-//        }
         for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
             VideoDetails temp = entry.getValue();
             //loop through all video extensions and resolutions
@@ -104,15 +71,10 @@ public class main {
                         log.debug("Video " + temp.getVideoName() + " has reached the max resolution");
                         break;
                     }
-                    if(VideoHelpers.fileExists(videopath+ "\\" + newVideo))//check if file exists
-                    {
+                    if(VideoHelpers.fileExists(server.Paths.videoPath+ "\\" + newVideo))//check if file exists
                         log.debug("Video " + newVideo + " already exists");
-                        continue;
-                    }
                     else //video does not exist
-                    {
                         builder.build(temp.getVideopath(), temp.getVideoName(), ext, res);
-                    }
                 }
             }
         }

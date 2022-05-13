@@ -88,11 +88,11 @@ public class VideoProperty {
     public static int[] getResolution(Resolution resolution) {
         switch (resolution) {
             case RESOLUTION_240:
-                return new int[]{320, 240};
+                return new int[]{426, 240};
             case RESOLUTION_360:
                 return new int[]{640, 360};
             case RESOLUTION_480:
-                return new int[]{640, 480};
+                return new int[]{854, 480};
             case RESOLUTION_720:
                 return new int[]{1280, 720};
             case RESOLUTION_1080:
