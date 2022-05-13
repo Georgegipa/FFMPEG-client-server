@@ -10,16 +10,15 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 public class FFBuilder {
-    private final  String path = "C:\\ffmpeg\\bin";
-    private static String videopath = "C:\\Users\\geoxb\\Documents\\Java\\Projects\\Projects\\FFMPEG\\videos";
+    private static String videopath = Paths.videoPath;
     private static Logger log = LogManager.getLogger(FFBuilder.class);
 
     private FFmpeg ffmpeg = null;
     private FFprobe ffprobe = null;
 
     FFBuilder() throws IOException {
-        ffmpeg = new FFmpeg(path + "\\ffmpeg.exe");
-        ffprobe = new FFprobe(path + "\\ffprobe.exe");
+        ffmpeg = new FFmpeg(Paths.ffmpegbinPath + "\\ffmpeg.exe");
+        ffprobe = new FFprobe(Paths.ffmpegbinPath + "\\ffprobe.exe");
     }
 
     public void build(String path,String videoName,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) throws IOException {

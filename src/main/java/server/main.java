@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class main {
-    private static String videopath = "C:\\Users\\geoxb\\Documents\\Java\\Projects\\Projects\\FFMPEG\\videos";
+    private static String videopath = server.Paths.videoPath;
     private static Logger log = LogManager.getLogger(main.class);
 
     @Deprecated
