@@ -1,3 +1,8 @@
+package server;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,8 +12,9 @@ import java.util.stream.Collectors;
 
 public class main {
     private static String videopath = "C:\\Users\\geoxb\\Documents\\Java\\Projects\\Projects\\FFMPEG\\videos";
+    private static Logger log = LogManager.getLogger(main.class);
 
-
+    @Deprecated
     private static void fileToVideoList(List<String> files) {
         HashMap<String, VideoType> videoList = new HashMap<String, VideoType>();
 
@@ -36,7 +42,6 @@ public class main {
         }
     }
 
-
     private static void printVideoList(HashMap<String, VideoDetails> videoList) {
         for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
             VideoDetails temp = entry.getValue();
@@ -50,6 +55,7 @@ public class main {
     }
 
     public static void main(String[] args) throws IOException {
+        log.debug("Starting");
         List<String> files =
                 Files.list(Paths.get(videopath))
                         .filter(path -> !Files.isDirectory(path))
@@ -72,13 +78,18 @@ public class main {
                     videoList.put(v.getVideoName(), vt);
                 }
             }
+            else
+                log.warn("File " + file + " is not a video");
+
         }
 
         //printVideoList(videoList);
+
         FFBuilder builder = new FFBuilder();
-//        for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
-//            VideoDetails temp = entry.getValue();
-//            builder.build(temp.getVideopath(), temp.getVideoName(), VideoProperty.VideoExtension.EXTENSION_MKV, VideoProperty.Resolution.RESOLUTION_360);
+
+//        for (Map.Entry<String, server.VideoDetails> entry : videoList.entrySet()) {
+//            server.VideoDetails temp = entry.getValue();
+//            builder.build(temp.getVideopath(), temp.getVideoName(), server.VideoProperty.VideoExtension.EXTENSION_MKV, server.VideoProperty.Resolution.RESOLUTION_360);
 //        }
         for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
             VideoDetails temp = entry.getValue();
@@ -89,9 +100,15 @@ public class main {
                     String newVideo = VideoHelpers.recreateName(temp.getVideoName(), ext, res);
                     //if the video has reached the max resolution, break the loop
                     if (res.ordinal() > temp.getMaxResolution().ordinal())
+                    {
+                        log.debug("Video " + temp.getVideoName() + " has reached the max resolution");
                         break;
+                    }
                     if(VideoHelpers.fileExists(videopath+ "\\" + newVideo))//check if file exists
+                    {
+                        log.debug("Video " + newVideo + " already exists");
                         continue;
+                    }
                     else //video does not exist
                     {
                         builder.build(temp.getVideopath(), temp.getVideoName(), ext, res);

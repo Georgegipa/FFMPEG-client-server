@@ -1,4 +1,4 @@
-//this file contains all the video properties for the videos in the videos folder
+package server;//this file contains all the video properties for the videos in the videos folder
 
 public class VideoProperty {
 
@@ -31,6 +31,15 @@ public class VideoProperty {
                 return Resolution.RESOLUTION_1080;
         }
         return null;
+    }
+
+    public static String[] getSupportedExtensions() {
+        //loop through all the supported extensions and return them as an array
+        String[] extensions = new String[VideoExtension.values().length];
+        for (VideoProperty.VideoExtension ext : VideoProperty.VideoExtension.values()) {
+            extensions[ext.ordinal()] = convertExtension(ext);
+        }
+        return extensions;
     }
 
     //convert string to VideoExtension

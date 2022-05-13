@@ -1,8 +1,10 @@
+package server;
+
 import java.io.File;
 
 public class VideoHelpers {
 
-    private static final String supportedextensions[] = "mp4,avi,mkv".split(",");
+    private static final String supportedextensions[] = VideoProperty.getSupportedExtensions();//get the supported extensions dynamically
 
     private static boolean isSupported(String extension) {
         for (String supportedextension : supportedextensions) {
@@ -14,11 +16,12 @@ public class VideoHelpers {
     }
 
     private static String getVideoName(String path) {
-        //αφού το όνομα του video βρίσκεται στο τέλος του μονοπατιού δεν χρειαζόμαστε το υπόλοιπο
+        //get the video name from the path
         String[] parts = path.split("\\\\");
         return parts[parts.length - 1];
     }
 
+    //extract the video details from the filename
     public static SimpleVideo getVideoDetails(String path) {
         String temp = "";
         SimpleVideo details = new SimpleVideo();
@@ -37,10 +40,12 @@ public class VideoHelpers {
         return null;
     }
 
+    //reconstruct the video filename from the video details
     public static String recreateName(String name,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) {
         return name + "-" + VideoProperty.convertResolution(res) + "p." + VideoProperty.convertExtension(ext);
     }
 
+    //get the path without the filename
     public static String removeFilefromPath(String path) {
         int index = path.lastIndexOf("\\");
         if (index != -1)

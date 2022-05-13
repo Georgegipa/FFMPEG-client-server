@@ -1,3 +1,5 @@
+package server;
+
 public class SimpleVideo {
     private String videopath;
     private String videoName;

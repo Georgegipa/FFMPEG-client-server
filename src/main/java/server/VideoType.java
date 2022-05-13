@@ -1,8 +1,11 @@
+package server;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Deprecated
 public class VideoType implements Serializable {
     private SimpleVideo video;
     private VideoProperty.Resolution maxResolution;
