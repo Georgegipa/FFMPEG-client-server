@@ -10,8 +10,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class main {
-    private static final Logger log = LogManager.getLogger(main.class);
+public class ServerMain {
+    private static final Logger log = LogManager.getLogger(ServerMain.class);
 
     private static void printVideoList(HashMap<String, VideoDetails> videoList) {
         for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
