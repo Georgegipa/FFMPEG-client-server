@@ -4,8 +4,6 @@ import fr.bmartel.speedtest.SpeedTestReport;
 import fr.bmartel.speedtest.SpeedTestSocket;
 import fr.bmartel.speedtest.inter.ISpeedTestListener;
 import fr.bmartel.speedtest.model.SpeedTestError;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class SpeedTest {
     private static final SpeedTestSocket speedTestSocket = new SpeedTestSocket();
@@ -50,12 +48,24 @@ public class SpeedTest {
         return isSpeedTestDone;
     }
 
-    public static float getSpeed() {
+    public static float getSpeed(){
         return speed;
     }
 
     public static int getSpeedKbps() {
         return (int) getSpeed() / 1000;
+    }
+
+    public static String displaySpeed()
+    {
+        int speedKbps = (int) getSpeed() / 1000;
+        if (speedKbps < 1000) {
+            return speedKbps + " kbps";
+        } else if (speedKbps < 1000000) {
+            return speedKbps / 1000 + " Mbps";
+        } else {
+            return speedKbps / 1000000 + " Gbps";
+        }
     }
 
 }

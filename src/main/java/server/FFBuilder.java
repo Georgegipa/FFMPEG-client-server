@@ -1,5 +1,8 @@
 package server;
 
+import Generic.Config;
+import Generic.VideoHelpers;
+import Generic.VideoProperty;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
@@ -16,11 +19,11 @@ public class FFBuilder {
     private final FFprobe ffprobe;
 
     FFBuilder() throws IOException {
-        ffmpeg = new FFmpeg(Paths.ffmpegbinPath + "\\ffmpeg.exe");
-        ffprobe = new FFprobe(Paths.ffmpegbinPath + "\\ffprobe.exe");
+        ffmpeg = new FFmpeg(Config.ffmpegbinPath + "\\ffmpeg.exe");
+        ffprobe = new FFprobe(Config.ffmpegbinPath + "\\ffprobe.exe");
     }
 
-    public void build(String path,String videoName,VideoProperty.VideoExtension ext,VideoProperty.Resolution res) {
+    public void build(String path, String videoName, VideoProperty.VideoExtension ext, VideoProperty.Resolution res) {
         String destination = VideoHelpers.removeFilefromPath(path);
         String fileName = VideoHelpers.recreateName(videoName,ext,res);
         log.debug("Creating New Video:"+ fileName);

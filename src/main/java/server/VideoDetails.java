@@ -1,5 +1,8 @@
 package server;
 
+import Generic.VideoHelpers;
+import Generic.VideoProperty;
+
 import java.io.Serializable;
 
 public class VideoDetails implements Serializable {

@@ -1,10 +1,5 @@
 package client;
 
-import fr.bmartel.speedtest.SpeedTestReport;
-import fr.bmartel.speedtest.SpeedTestSocket;
-import fr.bmartel.speedtest.inter.ISpeedTestListener;
-import fr.bmartel.speedtest.model.SpeedTestError;
-
 public class ClientMain {
 
 
@@ -17,7 +12,11 @@ public class ClientMain {
             //check if progress has changed and update the progress bar
             frame.updateBar((int)SpeedTest.getPercent());
         }
-        frame.speedTestDone(SpeedTest.getSpeedKbps());
+        frame.speedTestDone(SpeedTest.displaySpeed());
+        String preferredFormat = frame.selectedVideoType();
+        SocketClient.startSocket();
+        SocketClient.sendMessage(SpeedTest.getSpeedKbps()+"#"+preferredFormat);
+        SocketClient.endSocket();
 
     }
 

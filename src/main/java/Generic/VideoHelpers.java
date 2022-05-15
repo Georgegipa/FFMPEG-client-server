@@ -1,8 +1,10 @@
-package server;
+package Generic;
+
+import server.SimpleVideo;
 
 import java.io.File;
 
-public class VideoHelpers {
+public abstract class VideoHelpers {
 
     private static final String supportedextensions[] = VideoProperty.getSupportedExtensions();//get the supported extensions dynamically
 
@@ -53,10 +55,25 @@ public class VideoHelpers {
         return path;
     }
 
+    public static String getFilenameFromPath(String path) {
+        int index = path.lastIndexOf("\\");
+        if (index != -1)
+            return path.substring(index + 1);
+        return path;
+    }
+
+    //check if the given path contains a video
+    public static boolean isVideo(String fileName) {
+        if(isSupported(fileName.split("\\.")[1]))
+            return true;
+        return false;
+    }
+
     //check if file exists
     public static boolean fileExists(String path) {
         File f = new File(path);
         return f.exists();
     }
+
 }
 

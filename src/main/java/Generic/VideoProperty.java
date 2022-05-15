@@ -1,6 +1,6 @@
-package server;//this file contains all the video properties for the videos in the videos folder
+package Generic;//this file contains all the video properties for the videos in the videos folder
 
-public class VideoProperty {
+public abstract class VideoProperty {
 
     public enum Resolution {
         RESOLUTION_240,
