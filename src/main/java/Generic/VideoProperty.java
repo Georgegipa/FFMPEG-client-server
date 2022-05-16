@@ -16,6 +16,12 @@ public abstract class VideoProperty {
         EXTENSION_AVI
     }
 
+    public enum Protocol {
+        PROTOCOL_UDP,
+        PROTOCOL_TCP,
+        PROTOCOL_RTP
+    }
+
     //convert int to Resolution
     public static Resolution convertResolution(int resolution) {
         switch (resolution) {
@@ -55,6 +61,18 @@ public abstract class VideoProperty {
         return  null;
     }
 
+    public static Protocol convertProtocol(String protocol) {
+        switch (protocol) {
+            case "udp":
+                return Protocol.PROTOCOL_UDP;
+            case "tcp":
+                return Protocol.PROTOCOL_TCP;
+            case "rtp":
+                return Protocol.PROTOCOL_RTP;
+        }
+        return null;
+    }
+
     //convert VideoExtension to string
     public static String convertExtension(VideoExtension extension) {
         switch (extension) {
@@ -85,6 +103,7 @@ public abstract class VideoProperty {
         return null;
     }
 
+
     public static int[] getResolution(Resolution resolution) {
         switch (resolution) {
             case RESOLUTION_240:
@@ -97,6 +116,18 @@ public abstract class VideoProperty {
                 return new int[]{1280, 720};
             case RESOLUTION_1080:
                 return new int[]{1920, 1080};
+        }
+        return null;
+    }
+
+    public static String convertProtocol(Protocol protocol) {
+        switch (protocol) {
+            case PROTOCOL_UDP:
+                return "udp";
+            case PROTOCOL_TCP:
+                return "tcp";
+            case PROTOCOL_RTP:
+                return "rtp";
         }
         return null;
     }

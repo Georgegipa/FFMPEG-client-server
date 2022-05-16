@@ -1,7 +1,5 @@
 package server;
 
-import Generic.Config;
-import Generic.VideoHelpers;
 import Generic.VideoProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -13,7 +13,7 @@ public class SpeedTest {
 
 
     public static void performSpeedTest() {
-
+        speedTestSocket.startFixedDownload("ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db", 5);
         speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
 
             @Override
@@ -33,11 +33,8 @@ public class SpeedTest {
             public void onProgress(float percent, SpeedTestReport report) {
                 // called to notify download/upload progress
                 progress = percent;
-                //System.out.println("Progress : " + percent + "%");
             }
         });
-        //speedTestSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso");
-        speedTestSocket.startDownload("ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db");
     }
 
     public static float getPercent() {

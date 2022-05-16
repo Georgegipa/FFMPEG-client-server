@@ -1,6 +1,4 @@
 package server;
-import Generic.VideoHelpers;
-import Generic.VideoProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.IOException;
@@ -10,8 +8,6 @@ import static server.VideoToFile.*;
 
 public class ServerMain {
     private static final Logger log = LogManager.getLogger(ServerMain.class);
-
-
 
     //get all video filenames in the path
     private static List<String> getVideoFiles() throws IOException {
@@ -33,9 +29,7 @@ public class ServerMain {
         createMissingVideos(getVideoList(getFiles()));
         log.debug("Created all missing videos!");
         log.debug("Starting socket server...");
-        //SocketServer.startServer();
-        SocketServer.handleSpeedFormat("1000","avi");
-
+        SocketServer.startServer(5000);
     }
 }
 

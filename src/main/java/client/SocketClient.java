@@ -2,49 +2,62 @@ package client;
 
 import java.io.*;
 import java.net.Socket;
-import Generic.Config;
+
+import server.Config;
 
 public class SocketClient {
-    private static Socket socket;
-    private static BufferedReader reader;
-    private static PrintWriter writer;
-
-    public static void startSocket() {
-
+    private static volatile String message;
+    //create a client socket and send the message to the server
+    public static void Server() {
         try {
-            socket = new Socket("localhost", Config.port);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            ClientFrame frame = new ClientFrame();
+            frame.prepareUI();
+            //check download speed using  JSpeedTest
+            SpeedTest.performSpeedTest();
+            while (!SpeedTest.speedTestDone()) {
+                //check if progress has changed and update the progress bar
+                frame.updateBar((int) SpeedTest.getPercent());
+            }
+            frame.speedTestDone(SpeedTest.displaySpeed());
+            String preferredFormat = null;
+            while (preferredFormat == null) {//wait for the user to select the preferred format
+                preferredFormat = frame.selectedVideoType();
+            }
+            Socket socket = new Socket("localhost", Config.port);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
+            writer.println("1#"+SpeedTest.getSpeedKbps() + "#" + preferredFormat);
+            //wait for the server to send the response
+            message = reader.readLine();
+            while (message == null) {
+                message = reader.readLine();
+                if (message != null) {
+                    System.out.println(message);
+                }
+            }
+            frame.updateMainFrame(message.split("#"));
+            String videoName;
+            while (true) {
+                videoName = frame.getSelectedVideoName();
+                if (videoName != null)
+                    break;
+            }
+            frame.dispose();//close the frame after the user has selected the video
+            System.out.println("Video Name: " + videoName);
+            writer.println("2#"+videoName);
+            message = null;
+            while (true) {
+                message = reader.readLine();
+                System.out.println(message);
+                if (message != null) {
+                    break;
+                }
+            }
+            System.out.println("Response:" + message);
 
-    public static  void endSocket() {
-        try {
-            writer.flush();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    //create a method that will send a String message to the server
-    public static void sendMessage(String message) {
-        writer.flush();
-        writer.print(message);
-        writer.print("\r\n");
-        writer.flush();
-    }
-
-    //create a method that will receive a String message from the server
-    public static String receiveMessage() {
-        String message = null;
-        try {
-            message = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return message;
     }
 }

@@ -1,7 +1,5 @@
 package server;
 
-import Generic.Config;
-import Generic.VideoHelpers;
 import Generic.VideoProperty;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;

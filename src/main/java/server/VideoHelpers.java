@@ -1,5 +1,6 @@
-package Generic;
+package server;
 
+import Generic.VideoProperty;
 import server.SimpleVideo;
 
 import java.io.File;
