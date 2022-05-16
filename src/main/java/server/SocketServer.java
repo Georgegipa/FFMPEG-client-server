@@ -8,14 +8,16 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SocketServer {
     private static ServerSocket server;
     private static final Logger log = LogManager.getLogger(ServerSocket.class);
     private static Socket socket;
     private static VideoProperty.Resolution recommendedResolution;
-
+    private static List<String> commands = new ArrayList<>();
     //create a server socket and listen for incoming connections
 
     public static void startServer(int port) {
@@ -27,8 +29,7 @@ public class SocketServer {
                 socket = server.accept();
                 log.debug("Server started on port " + port);
                 handleSocket(socket);
-                //handle(socket);
-                socket.close();
+
                 log.debug("Socket closed");
             }
             //if a client disconnects, the server will close the socket and wait for another client to connect
@@ -46,7 +47,7 @@ public class SocketServer {
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
             while (true) {
                 String received = reader.readLine();
-                System.out.print(received);
+                log.info(received);
                 if (received.startsWith("1#")) {//τερματισμός του server
                     String[] split = received.split("#");
                     String response = handleSpeedFormat(split[1], split[2]);
@@ -54,13 +55,20 @@ public class SocketServer {
                     writer.flush();
                 } else if (received.startsWith("2#")) {
                     String[] split = received.split("#");
-                    String response = handleVideoPlayback(split[1], split[2]);
-                    System.out.println(response);
-                    writer.println("PLAY#"+Config.streamport);
+                    writer.println("PLAY#"+handleVideoPlayback(split[1], split[2])+"#"+Config.streamport);
                     writer.flush();
                     break;
                 }
             }
+            socket.close();
+            for (String command : commands) {
+                System.out.print(command);
+            }
+            //run a processVuilder to build the video
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            processBuilder.start();
+            commands.clear();
+
         } catch (IOException ignored) {
             log.debug("Client disconnected");
         }
@@ -124,18 +132,35 @@ public class SocketServer {
         } else
             protocolType = VideoProperty.convertProtocol(temp);
 
-        String input = " -i " + Config.videoPath + "\\" + selectedName;
-        String format = " -f " + selectedName.split("\\.")[1];
-        String ip = " " + VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport;
+
+
+//        String input = " -i " + Config.videoPath + "\\" + selectedName;
+//        String format = " -f " + selectedName.split("\\.")[1];
+//        String ip = " " + VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport;
+        commands.add("cmd.exe");
+        commands.add("/c");
         switch (protocolType) {
             case PROTOCOL_TCP:
-                return "ffmpeg" + input + format + ip + "?listen";
+                commands.add("ffmpeg");
+                commands.add("-i");
+                commands.add(Config.videoPath + "\\" + selectedName);
+                commands.add("-f");
+                commands.add(selectedName.split("\\.")[1]);
+                commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport+"?listen");
+                break;
             case PROTOCOL_UDP:
-                return "ffmpeg -re" + input + format + ip;
+                commands.add("ffmpeg");
+                commands.add("-re");
+                commands.add("-i");
+                commands.add(Config.videoPath + "\\" + selectedName);
+                commands.add("-f");
+                commands.add(selectedName.split("\\.")[1]);
+                commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
+                break;
             case PROTOCOL_RTP:
                 return new Exception("Not implemented yet").toString();
         }
-        return temp;
+        return VideoProperty.convertProtocol(protocolType);
     }
 
 }
