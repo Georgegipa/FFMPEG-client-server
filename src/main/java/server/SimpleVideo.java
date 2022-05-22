@@ -23,9 +23,7 @@ public class SimpleVideo {
         return videoName;
     }
 
-    public void setVideoExtension(String videoExtension) {
-        this.videoExtension = videoExtension;
-    }
+    public void setVideoExtension(String videoExtension) { this.videoExtension = videoExtension;}
 
     public String getVideoExtension() {
         return videoExtension;
@@ -35,7 +33,5 @@ public class SimpleVideo {
         this.Resolution = Resolution;
     }
 
-    public int getResolution() {
-        return Resolution;
-    }
+    public int getResolution() { return Resolution;  }
 }

@@ -10,14 +10,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class SocketServer {
     private static ServerSocket server;
     private static final Logger log = LogManager.getLogger(ServerSocket.class);
     private static Socket socket;
     private static VideoProperty.Resolution recommendedResolution;
-    private static List<String> commands = new ArrayList<>();
+    private static volatile List<String> commands = new ArrayList<>();
     //create a server socket and listen for incoming connections
 
     public static void startServer(int port) {
@@ -29,8 +28,12 @@ public class SocketServer {
                 socket = server.accept();
                 log.debug("Server started on port " + port);
                 handleSocket(socket);
-
+                socket.close();
                 log.debug("Socket closed");
+                for (String command : commands) {
+                    System.out.print(" " + command);
+                }
+
             }
             //if a client disconnects, the server will close the socket and wait for another client to connect
         } catch (Exception e) {
@@ -48,40 +51,45 @@ public class SocketServer {
             while (true) {
                 String received = reader.readLine();
                 log.info(received);
-                if (received.startsWith("1#")) {//τερματισμός του server
+                if (received.startsWith("1#")) {
                     String[] split = received.split("#");
                     String response = handleSpeedFormat(split[1], split[2]);
                     writer.println(response);
                     writer.flush();
                 } else if (received.startsWith("2#")) {
                     String[] split = received.split("#");
-                    writer.println("PLAY#"+handleVideoPlayback(split[1], split[2])+"#"+Config.streamport);
+                    String selectedProtocol = handleVideoPlayback(split[1], split[2]);
+                    writer.println("PLAY#" + selectedProtocol + "#" + Config.streamport);
                     writer.flush();
+                    handleStream(split[1], VideoProperty.convertProtocol(selectedProtocol));
                     break;
                 }
             }
-            socket.close();
-            for (String command : commands) {
-                System.out.print(command);
-            }
-            //run a processVuilder to build the video
-            ProcessBuilder processBuilder = new ProcessBuilder(commands);
-            processBuilder.start();
-            commands.clear();
-
+            inputStream.close();
+            outputStream.close();
+            reader.close();
+            writer.close();
         } catch (IOException ignored) {
             log.debug("Client disconnected");
         }
     }
 
     private static String handleSpeedFormat(String speed, String format) {
-        int[] recommendedSpeed = {400, 750, 1000, 2500, 4500};
         int speedInt = Integer.parseInt(speed);
         VideoProperty.VideoExtension extension = VideoProperty.convertExtension(format);
         recommendedResolution = VideoProperty.Resolution.RESOLUTION_240;
         //check which resolution is the best based on the speed
         int i = 0;
-        for (int bitRate : recommendedSpeed) {
+        for (int bitRate : Config.BitRates) {
+            //if the speed is more than the minimum bitrate and lower than the recommended bitrate
+            if (speedInt > Config.MinBitRate && speedInt < bitRate) {
+                recommendedResolution = VideoProperty.Resolution.values()[i];
+                break;
+            }
+            //if speed is lower than the minimum bitrate
+            else if (speedInt < Config.MinBitRate)
+                return "ERROR#" + "Bitrate too low!";
+
             if (speedInt >= bitRate) {
                 recommendedResolution = VideoProperty.Resolution.values()[i];
                 i++;
@@ -111,6 +119,7 @@ public class SocketServer {
         return output;
     }
 
+
     private static String handleVideoPlayback(String selectedName, String protocol) {
         //convert output to lower case
         String temp = protocol.toLowerCase();
@@ -131,36 +140,50 @@ public class SocketServer {
             }
         } else
             protocolType = VideoProperty.convertProtocol(temp);
+        log.debug("Selected protocol is " + protocolType);
+        return VideoProperty.convertProtocol(protocolType);
+    }
 
-
-
-//        String input = " -i " + Config.videoPath + "\\" + selectedName;
-//        String format = " -f " + selectedName.split("\\.")[1];
-//        String ip = " " + VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport;
+    private static void handleStream(String selectedName, VideoProperty.Protocol protocolType) {
+        commands.clear();
         commands.add("cmd.exe");
         commands.add("/c");
+        commands.add("ffmpeg");
+        commands.add("-re");
+        commands.add("-i");
         switch (protocolType) {
             case PROTOCOL_TCP:
-                commands.add("ffmpeg");
-                commands.add("-i");
                 commands.add(Config.videoPath + "\\" + selectedName);
                 commands.add("-f");
-                commands.add(selectedName.split("\\.")[1]);
-                commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport+"?listen");
+                commands.add("avi");
+                commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport + "?listen");
                 break;
             case PROTOCOL_UDP:
-                commands.add("ffmpeg");
-                commands.add("-re");
-                commands.add("-i");
                 commands.add(Config.videoPath + "\\" + selectedName);
                 commands.add("-f");
-                commands.add(selectedName.split("\\.")[1]);
+                commands.add("avi");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
                 break;
             case PROTOCOL_RTP:
-                return new Exception("Not implemented yet").toString();
+                //TODO: add rtp support
+                //return new Exception("Not implemented yet").toString();
+                break;
         }
-        return VideoProperty.convertProtocol(protocolType);
+
+        try {
+            //run a processVuilder to build the video
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            Process process = processBuilder.start();
+            //print the error stream
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+            String error;
+            while ((error = errorReader.readLine()) != null) {
+                System.out.println(error);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

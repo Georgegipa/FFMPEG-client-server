@@ -1,10 +1,11 @@
 package client;
 
-import java.io.*;
-
 public class ClientMain {
 
-    public static void main(String[] args) throws IOException {
-        SocketClient.Server();
+    private static final String ip = "127.0.0.1";
+    private static final int port = 5000;
+
+    public static void main(String[] args) {
+        SocketClient.Server(ip, port);
     }
 }

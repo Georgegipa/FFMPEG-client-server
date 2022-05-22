@@ -16,17 +16,6 @@ import java.util.stream.Collectors;
 
 public class VideoToFile {
     private static final Logger log = LogManager.getLogger(VideoToFile.class);
-    public static void printVideoList(HashMap<String, VideoDetails> videoList) {
-        for (Map.Entry<String, VideoDetails> entry : videoList.entrySet()) {
-            VideoDetails temp = entry.getValue();
-            System.out.println(temp.getVideoName());
-            String ext = temp.getMaxResolutionExtensionString();
-            System.out.println(ext);
-            String res = temp.getMaxResolutionString();
-            System.out.println(res);
-            System.out.println(temp.getVideopath());
-        }
-    }
 
     public static void createMissingVideos(HashMap<String, VideoDetails> videoList) throws IOException {
         FFBuilder builder = new FFBuilder();
@@ -73,7 +62,7 @@ public class VideoToFile {
         return videoList;
     }
 
-    public static  List<String> getFiles() throws IOException
+    public static List<String> getFiles() throws IOException
     {
         Path path = Paths.get(Config.videoPath);
         return Files.walk(path)

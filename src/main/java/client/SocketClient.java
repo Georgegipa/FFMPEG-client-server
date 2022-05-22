@@ -2,14 +2,13 @@ package client;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import server.Config;
-
 public class SocketClient {
     //create a client socket and send the message to the server
-    public static void Server() {
+    public static void Server(String ip,int port) {
         try {
             ClientFrame frame = new ClientFrame();
             frame.prepareUI();
@@ -19,12 +18,12 @@ public class SocketClient {
                 //check if progress has changed and update the progress bar
                 frame.updateBar((int) SpeedTest.getPercent());
             }
-            frame.speedTestDone(SpeedTest.displaySpeed());
+            frame.updateBar(SpeedTest.displaySpeed());
             String preferredFormat = null;
             while (preferredFormat == null) {//wait for the user to select the preferred format
                 preferredFormat = frame.selectedVideoType();
             }
-            Socket socket = new Socket("localhost", Config.port);
+            Socket socket = new Socket(ip, port);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
             writer.println("1#" + SpeedTest.getSpeedKbps() + "#" + preferredFormat);
@@ -53,17 +52,31 @@ public class SocketClient {
                     break;
                 }
             } while (message == null);
+
             System.out.println("Response:" + message);
+
+            socket.close();
+
             List<String> commands = new ArrayList<>();
             commands.add("cmd.exe");
             commands.add("/c");
             commands.add("ffplay");
             commands.add("-autoexit");//auto exit after the video is played
             commands.add(message.split("#")[1]+"://"+socket.getLocalAddress().getHostAddress()+":"+message.split("#")[2]);
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            pb.start();
+            for (String command : commands) {
+                System.out.print(" "+command);
+            }
+            System.out.println("");
 
-            socket.close();
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Process process = pb.start();
+            //print the error stream
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+            String error;
+            //print the process output
+            while ((error = errorReader.readLine()) != null) {
+                System.out.println(error);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,8 +1,6 @@
 package server;
 
 import Generic.VideoProperty;
-import server.SimpleVideo;
-
 import java.io.File;
 
 public abstract class VideoHelpers {
@@ -63,7 +61,7 @@ public abstract class VideoHelpers {
         return path;
     }
 
-    //check if the given path contains a video
+    //check if the given path is a video
     public static boolean isVideo(String fileName) {
         if(isSupported(fileName.split("\\.")[1]))
             return true;
@@ -77,4 +75,3 @@ public abstract class VideoHelpers {
     }
 
 }
-
