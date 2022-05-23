@@ -13,7 +13,7 @@ public class SpeedTest {
 
 
     public static void performSpeedTest() {
-        speedTestSocket.startFixedDownload("ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db", 5);
+        speedTestSocket.startFixedDownload("ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db", 500);
         speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
 
             @Override

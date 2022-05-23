@@ -1,5 +1,7 @@
 package client;
 
+import server.Config;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -61,13 +63,23 @@ public class SocketClient {
             commands.add("cmd.exe");
             commands.add("/c");
             commands.add("ffplay");
-            commands.add("-autoexit");//auto exit after the video is played
-            commands.add(message.split("#")[1]+"://"+socket.getLocalAddress().getHostAddress()+":"+message.split("#")[2]);
+            if(message.split("#")[1].equals("rtp")){
+                //add the following flags -protocol_whitelist file,rtp,udp -i saved_sdp_file
+                commands.add("-protocol_whitelist");
+                commands.add("file,rtp,udp");
+                commands.add("-i");
+                commands.add(Config.videoPath + "\\" + "rtpfile" + ".sdp");
+            }
+            else
+            {
+                commands.add("-autoexit");//auto exit after the video is played
+                commands.add(message.split("#")[1] + "://" + ip + ":" + message.split("#")[2]);
+            }
             for (String command : commands) {
                 System.out.print(" "+command);
             }
             System.out.println("");
-
+            Thread.sleep(5000);
             ProcessBuilder pb = new ProcessBuilder(commands);
             Process process = pb.start();
             //print the error stream
@@ -77,8 +89,10 @@ public class SocketClient {
             while ((error = errorReader.readLine()) != null) {
                 System.out.println(error);
             }
+            //stop the process when the video is played
+            process.destroy();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

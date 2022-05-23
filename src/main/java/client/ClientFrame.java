@@ -127,15 +127,6 @@ public class ClientFrame extends JFrame {
         streamVideoButton.setEnabled(true);
     }
 
-    public void resetUI() {
-        udpJradio.setEnabled(false);
-        tcpJradio.setEnabled(false);
-        rtpJradio.setEnabled(false);
-        videoNames.setEnabled(false);
-        streamVideoButton.setEnabled(false);
-        selectedVideoName = null;
-    }
-
     public String getSelectedVideoName() {
         return selectedVideoName;
     }
