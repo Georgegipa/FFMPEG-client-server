@@ -1,5 +1,6 @@
 package server;
 
+import Generic.ProcessRunner;
 import Generic.VideoProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +17,7 @@ public class SocketServer {
     private static final Logger log = LogManager.getLogger(ServerSocket.class);
     private static Socket socket;
     private static VideoProperty.Resolution recommendedResolution;
-    private static volatile List<String> commands = new ArrayList<>();
+    private static List<String> commands = new ArrayList<>();
     //create a server socket and listen for incoming connections
 
     public static void startServer(int port) {
@@ -28,11 +29,12 @@ public class SocketServer {
                 socket = server.accept();
                 log.debug("Server started on port " + port);
                 handleSocket(socket);
+                ProcessRunner processRunner = new ProcessRunner(commands);
+                processRunner.start();
+                processRunner.printError();
                 socket.close();
+                log.debug("Restarting");
                 log.debug("Socket closed");
-                for (String command : commands) {
-                    System.out.print(" " + command);
-                }
 
             }
             //if a client disconnects, the server will close the socket and wait for another client to connect
@@ -56,6 +58,8 @@ public class SocketServer {
                     String response = handleSpeedFormat(split[1], split[2]);
                     writer.println(response);
                     writer.flush();
+                    if(response.startsWith("ERROR"))//bitrate is too low
+                        return;
                 } else if (received.startsWith("2#")) {
                     String[] split = received.split("#");
                     String selectedProtocol = handleVideoPlayback(split[1], split[2]);
@@ -118,7 +122,6 @@ public class SocketServer {
         output = output.substring(0, output.length() - 1);
         return output;
     }
-
 
     private static String handleVideoPlayback(String selectedName, String protocol) {
         //convert output to lower case
@@ -191,20 +194,8 @@ public class SocketServer {
                 break;
         }
 
-        try {
-            //run a processVuilder to build the video
-            ProcessBuilder processBuilder = new ProcessBuilder(commands);
-            Process process = processBuilder.start();
-            //print the error stream
-            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-            String error;
-            while ((error = errorReader.readLine()) != null) {
-                System.out.println(error);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (String command : commands) {
+            System.out.print(" " + command);
         }
-
     }
-
 }

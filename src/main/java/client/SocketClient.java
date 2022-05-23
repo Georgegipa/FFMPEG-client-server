@@ -1,16 +1,16 @@
 package client;
 
+import Generic.ProcessRunner;
 import server.Config;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SocketClient {
     //create a client socket and send the message to the server
-    public static void Server(String ip,int port) {
+    public static void Server(String ip, int port) {
         try {
             ClientFrame frame = new ClientFrame();
             frame.prepareUI();
@@ -37,6 +37,13 @@ public class SocketClient {
                     break;
                 }
             }
+            //display the given error message
+            if (message.startsWith("ERROR")) {
+                frame.dispose();
+                ClientFrame.showErrorDialog(message.split("#")[1]);
+                System.exit(0);
+            }
+
             frame.updateMainFrame(message.split("#"));
             String videoName;
             while (true) {
@@ -59,41 +66,32 @@ public class SocketClient {
 
             socket.close();
 
-            List<String> commands = new ArrayList<>();
-            commands.add("cmd.exe");
-            commands.add("/c");
-            commands.add("ffplay");
-            if(message.split("#")[1].equals("rtp")){
-                //add the following flags -protocol_whitelist file,rtp,udp -i saved_sdp_file
-                commands.add("-protocol_whitelist");
-                commands.add("file,rtp,udp");
-                commands.add("-i");
-                commands.add(Config.videoPath + "\\" + "rtpfile" + ".sdp");
-            }
-            else
-            {
-                commands.add("-autoexit");//auto exit after the video is played
-                commands.add(message.split("#")[1] + "://" + ip + ":" + message.split("#")[2]);
-            }
-            for (String command : commands) {
-                System.out.print(" "+command);
-            }
-            System.out.println("");
-            Thread.sleep(5000);
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            Process process = pb.start();
-            //print the error stream
-            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-            String error;
-            //print the process output
-            while ((error = errorReader.readLine()) != null) {
-                System.out.println(error);
-            }
-            //stop the process when the video is played
-            process.destroy();
+            List<String> commands = generateCommands(ip,message.split("#")[1],Integer.parseInt(message.split("#")[2]));
+            ProcessRunner processRunner = new ProcessRunner(commands);
+            processRunner.start();
+            processRunner.printError();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static List<String> generateCommands(String ip , String protocol , int port )
+    {
+        List<String> commands = new ArrayList<>();
+        commands.add("cmd.exe");
+        commands.add("/c");
+        commands.add("ffplay");
+        if (protocol.equals("rtp")) {
+            //add the following flags -protocol_whitelist file,rtp,udp -i saved_sdp_file
+            commands.add("-protocol_whitelist");
+            commands.add("file,rtp,udp");
+            commands.add("-i");
+            commands.add(Config.videoPath + "\\" + "rtpfile" + ".sdp");
+        } else {
+            commands.add("-autoexit");//auto exit after the video is played
+            commands.add(protocol+ "://" + ip + ":" + port);
+        }
+        return commands;
     }
 }
