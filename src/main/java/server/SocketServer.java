@@ -149,12 +149,11 @@ public class SocketServer {
 
     private static void handleStream(String selectedName, VideoProperty.Protocol protocolType) {
         commands.clear();
-//        commands.add("cmd.exe");
-//        commands.add("/c");
         commands.add("ffmpeg");
 
         switch (protocolType) {
             case PROTOCOL_TCP:
+                commands.add("-re");
                 commands.add("-i");
                 commands.add(Config.videoPath + "\\" + selectedName);
                 commands.add("-f");

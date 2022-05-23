@@ -20,9 +20,11 @@ public class ProcessRunner {
         commands.addAll(comm);
         processBuilder = new ProcessBuilder(commands);
         //print all the commands
-        for (String command : commands) {
-            System.out.print(" " + command);
+        System.out.print("\ncommands: ");
+        for (String s : commands) {
+            System.out.print(s + " ");
         }
+        System.out.println("");
     }
 
     public void start() {

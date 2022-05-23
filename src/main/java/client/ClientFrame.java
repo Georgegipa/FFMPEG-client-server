@@ -110,6 +110,7 @@ public class ClientFrame extends JFrame {
 
     //update the bar when the speed test is done
     public void updateBar(String speed) {
+        bar.setValue(100);
         bar.setForeground(Color.GREEN);
         bar.setString("Connection Speed: " + speed);
     }

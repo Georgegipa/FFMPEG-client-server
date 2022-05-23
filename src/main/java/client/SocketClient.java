@@ -79,8 +79,6 @@ public class SocketClient {
     private static List<String> generateCommands(String ip , String protocol , int port )
     {
         List<String> commands = new ArrayList<>();
-        commands.add("cmd.exe");
-        commands.add("/c");
         commands.add("ffplay");
         if (protocol.equals("rtp")) {
             //add the following flags -protocol_whitelist file,rtp,udp -i saved_sdp_file
