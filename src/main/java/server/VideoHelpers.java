@@ -2,6 +2,8 @@ package server;
 
 import Generic.VideoProperty;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class VideoHelpers {
 
@@ -72,20 +74,29 @@ public abstract class VideoHelpers {
         return f.exists();
     }
 
-    public static String getFFFormat(String videoName) {
+    public static List<String> getFFFormat(String videoName) {
         String format = videoName.split("\\.")[1];
         //convert the extension to the correct format
+        List<String> extraflags = new ArrayList<>();
         VideoProperty.VideoExtension ext = VideoProperty.convertExtension(format);
         switch (ext)
         {
             case EXTENSION_MP4:
-                return "mp4";
+                extraflags.add("-movflags");
+                extraflags.add(" frag_keyframe+empty_moov");
+                extraflags.add("-f");
+                extraflags.add("mp4");
+                break;
             case EXTENSION_MKV:
-                return "mastroska";
+                extraflags.add("-f");
+                extraflags.add("matroska");
+                break;
             case EXTENSION_AVI:
-                return "avi";
+                extraflags.add("-f");
+                extraflags.add("avi");
+                break;
         }
-        return format;//return the original format if it is not supported
+        return extraflags;//return the original format if it is not supported
     }
 
 }

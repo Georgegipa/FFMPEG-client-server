@@ -156,31 +156,19 @@ public class SocketServer {
         commands.add(Config.videoPath + "\\" + selectedName);
         switch (protocolType) {
             case PROTOCOL_TCP:
-                commands.add("-f");
-                commands.add("avi");
+                commands.addAll(VideoHelpers.getFFFormat(selectedName));
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport + "?listen");
                 break;
             case PROTOCOL_UDP:
-                commands.add("-f");
-                commands.add("avi");
+                commands.addAll(VideoHelpers.getFFFormat(selectedName));
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
                 break;
             case PROTOCOL_RTP:
-//                commands.add("-thread_queue_size");
-//                commands.add("4");
-//                commands.add("-strict");
-//                commands.add("2");
-//                commands.add("-vcodec");
-//                commands.add("copy");
-//                commands.add("-an");
                 commands.add("-f");
                 commands.add("rtp");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
-//                commands.add("-acodec");
-//                commands.add("copy");
-//                commands.add("-vn");
                 commands.add("-sdp_file");
-                commands.add(Config.videoPath + "\\" + "rtpfile" + ".sdp");
+                commands.add(Config.videoPath + "\\" + "rtpfile.sdp");
                 commands.add("-f");
                 commands.add("rtp");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + (Config.streamport+1000));
