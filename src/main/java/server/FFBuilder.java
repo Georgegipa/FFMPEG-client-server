@@ -5,6 +5,7 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,5 +35,10 @@ public class FFBuilder {
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
         executor.createJob(builder).run();
+    }
+
+    public int getDuration(String path) throws IOException {
+        FFmpegProbeResult in = ffprobe.probe(path);
+        return (int) in.getFormat().duration;
     }
 }

@@ -149,52 +149,42 @@ public class SocketServer {
 
     private static void handleStream(String selectedName, VideoProperty.Protocol protocolType) {
         commands.clear();
+        //the following commands are the same for all protocols
         commands.add("ffmpeg");
-
+        commands.add("-re");
+        commands.add("-i");
+        commands.add(Config.videoPath + "\\" + selectedName);
         switch (protocolType) {
             case PROTOCOL_TCP:
-                commands.add("-re");
-                commands.add("-i");
-                commands.add(Config.videoPath + "\\" + selectedName);
                 commands.add("-f");
                 commands.add("avi");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport + "?listen");
                 break;
             case PROTOCOL_UDP:
-                commands.add("-re");
-                commands.add("-i");
-                commands.add(Config.videoPath + "\\" + selectedName);
                 commands.add("-f");
                 commands.add("avi");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
                 break;
             case PROTOCOL_RTP:
-                commands.add("-re");
-                commands.add("-thread_queue_size");
-                commands.add("4");
-                commands.add("-i");
-                commands.add(Config.videoPath + "\\" + selectedName);
-                commands.add("-strict");
-                commands.add("2");
-                commands.add("-vcodec");
-                commands.add("copy");
-                commands.add("-an");
+//                commands.add("-thread_queue_size");
+//                commands.add("4");
+//                commands.add("-strict");
+//                commands.add("2");
+//                commands.add("-vcodec");
+//                commands.add("copy");
+//                commands.add("-an");
                 commands.add("-f");
                 commands.add("rtp");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
-                commands.add("-acodec");
-                commands.add("copy");
-                commands.add("-vn");
+//                commands.add("-acodec");
+//                commands.add("copy");
+//                commands.add("-vn");
                 commands.add("-sdp_file");
                 commands.add(Config.videoPath + "\\" + "rtpfile" + ".sdp");
                 commands.add("-f");
                 commands.add("rtp");
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + (Config.streamport+1000));
                 break;
-        }
-
-        for (String command : commands) {
-            System.out.print(" " + command);
         }
     }
 }
