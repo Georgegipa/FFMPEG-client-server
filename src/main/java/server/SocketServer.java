@@ -29,6 +29,7 @@ public class SocketServer {
                 socket = server.accept();
                 log.debug("Server started on port " + port);
                 handleSocket(socket);
+                Thread.sleep(3000);
                 ProcessRunner processRunner = new ProcessRunner(commands);
                 processRunner.start();
                 processRunner.printError();
@@ -118,8 +119,11 @@ public class SocketServer {
             else
                 break;
         }
-        //remove the last #
-        output = output.substring(0, output.length() - 1);
+
+        //check if last character is #
+        if (output.endsWith("#"))
+            output = output.substring(0, output.length() - 1);
+        log.debug(output);
         return output;
     }
 
@@ -156,11 +160,11 @@ public class SocketServer {
         commands.add(Config.videoPath + "\\" + selectedName);
         switch (protocolType) {
             case PROTOCOL_TCP:
-                commands.addAll(VideoHelpers.getFFFormat(selectedName));
+                commands.addAll(VideoHelpers.getFFFormat(selectedName,false));
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport + "?listen");
                 break;
             case PROTOCOL_UDP:
-                commands.addAll(VideoHelpers.getFFFormat(selectedName));
+                commands.addAll(VideoHelpers.getFFFormat(selectedName,true));
                 commands.add(VideoProperty.convertProtocol(protocolType) + "://" + socket.getInetAddress().getHostAddress() + ":" + Config.streamport);
                 break;
             case PROTOCOL_RTP:

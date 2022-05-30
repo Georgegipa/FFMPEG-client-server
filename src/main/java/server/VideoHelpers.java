@@ -74,7 +74,7 @@ public abstract class VideoHelpers {
         return f.exists();
     }
 
-    public static List<String> getFFFormat(String videoName) {
+    public static List<String> getFFFormat(String videoName,boolean isUDP) {
         String format = videoName.split("\\.")[1];
         //convert the extension to the correct format
         List<String> extraflags = new ArrayList<>();
@@ -82,12 +82,21 @@ public abstract class VideoHelpers {
         switch (ext)
         {
             case EXTENSION_MP4:
+                if(isUDP) {
+                    extraflags.add("-f");
+                    extraflags.add("mpegts");
+                    break;
+                }
                 extraflags.add("-movflags");
                 extraflags.add(" frag_keyframe+empty_moov");
                 extraflags.add("-f");
                 extraflags.add("mp4");
                 break;
             case EXTENSION_MKV:
+                if(isUDP) {
+                    extraflags.add("-movflags");
+                    extraflags.add(" frag_keyframe+empty_moov");
+                }
                 extraflags.add("-f");
                 extraflags.add("matroska");
                 break;
