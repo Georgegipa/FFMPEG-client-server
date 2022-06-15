@@ -8,13 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ClientFrame extends JFrame {
-    private JButton streamVideoButton;
-    private JProgressBar bar;
-    private JComboBox<String> videoNames;
-    private JRadioButton udpJradio, tcpJradio, rtpJradio;
-    private ButtonGroup group;
-    //these is required to avoid compiller optimization and make sure the state of button is always up to date
-    private static volatile String selectedVideoName;
+    private final JButton streamVideoButton;
+    private final JProgressBar bar;
+    private final JComboBox<String> videoNames;
+    private final JRadioButton udpJradio, tcpJradio, rtpJradio;
+    private String[] selection;
 
 
     public ClientFrame() {
@@ -30,11 +28,8 @@ public class ClientFrame extends JFrame {
         bar.setBorderPainted(false);
         bar.setPreferredSize(new Dimension(200, 20));
         bar.setVisible(true);
-
         videoNames = new JComboBox<>();
         videoNames.setEnabled(false);
-
-
         udpJradio = new JRadioButton("UDP");
         tcpJradio = new JRadioButton("TCP");
         rtpJradio = new JRadioButton("RTP");
@@ -44,7 +39,7 @@ public class ClientFrame extends JFrame {
         udpJradio.setEnabled(false);
         tcpJradio.setEnabled(false);
         rtpJradio.setEnabled(false);
-        group = new ButtonGroup();
+        ButtonGroup group = new ButtonGroup();
         group.add(tcpJradio);
         group.add(udpJradio);
         group.add(rtpJradio);
@@ -74,32 +69,34 @@ public class ClientFrame extends JFrame {
         selectionPanel.add(secondRow);
         //add the grid layout to the center of the frame
 
-        streamVideoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //get the selected video name
-                String videoName = (String) videoNames.getSelectedItem();
-                //get the selected protocol
-                //get the selection from the group
-                System.out.println(group.getSelection().getActionCommand());
-                String protocol = null;
-                if (tcpJradio.isSelected())
-                    protocol = "TCP";
-                else if (udpJradio.isSelected())
-                    protocol = "UDP";
-                else if (rtpJradio.isSelected())
-                    protocol = "RTP";
-                else//none of the radio buttons is selected
-                    protocol = "AUTO";
-                selectedVideoName = videoName + "#" + protocol;
-            }
-        });
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Stream Video");
         this.setSize(500, 200);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+    }
+
+    public void registerListener(ActionListener listener) {
+        streamVideoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get the selected video name
+                String videoName = (String) videoNames.getSelectedItem();
+                //get the selected protocol
+                String protocol = "AUTO"; //default behavior is to use AUTO
+                if (tcpJradio.isSelected())
+                    protocol = "TCP";
+                else if (udpJradio.isSelected())
+                    protocol = "UDP";
+                else if (rtpJradio.isSelected())
+                    protocol = "RTP";
+                selection = new String[]{videoName, protocol};
+                //print selection
+                System.out.println("Video Name: " + videoName + " Protocol: " + protocol);
+                listener.actionPerformed(e);
+            }
+        });
     }
 
     //repaint the progress bar with the given value
@@ -128,14 +125,15 @@ public class ClientFrame extends JFrame {
         streamVideoButton.setEnabled(true);
     }
 
-    public String getSelectedVideoName() {
-        return selectedVideoName;
+    public String[] getSelection() {
+        return selection;
     }
 
     //create a pop up window to show the supported video formats
     public static String selectedVideoType() {
         String[] optionsToChoose = VideoProperty.getSupportedExtensions();
-        String videoFormat = (String) JOptionPane.showInputDialog(
+
+        return (String) JOptionPane.showInputDialog(
                 null,
                 "Which video format do you prefer?",
                 "Choose Video Format",
@@ -143,8 +141,6 @@ public class ClientFrame extends JFrame {
                 null,
                 optionsToChoose,
                 optionsToChoose[optionsToChoose.length - 1]);
-
-        return videoFormat;
     }
 
     //create a error dialog box

@@ -10,16 +10,17 @@ public class SpeedTest {
     private static float speed = 0;
     private static float progress = 0;
     private static boolean isSpeedTestDone = false;
+    private static final String url = "http://speedtest.ftp.otenet.gr/files/test1Mb.db";
+    private static final int timeout = 5000;
 
 
     public static void performSpeedTest() {
-        speedTestSocket.startFixedDownload("ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db", 500);
+        speedTestSocket.startFixedDownload(url, timeout);
         speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
 
             @Override
             public void onCompletion(SpeedTestReport report) {
                 // called when download/upload is complete
-                //System.out.println("Rate in bit/s   : " + report.getTransferRateBit());
                 speed = report.getTransferRateBit().floatValue();
                 isSpeedTestDone = true;
             }

@@ -41,7 +41,7 @@ public class VideoToFile {
         }
     }
 
-    public static HashMap<String, VideoDetails> getVideoList(List<String> files) throws IOException {
+    public static HashMap<String, VideoDetails> getVideoList(List<String> files) {
         HashMap<String, VideoDetails> videoList = new HashMap<>();
         for (String file : files) {//Loop every file in the list
             SimpleVideo v = VideoHelpers.getVideoDetails(file);

@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 public class FFBuilder {
-    private static Logger log = LogManager.getLogger(FFBuilder.class);
+    private static final Logger log = LogManager.getLogger(FFBuilder.class);
 
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
@@ -37,8 +37,4 @@ public class FFBuilder {
         executor.createJob(builder).run();
     }
 
-    public int getDuration(String path) throws IOException {
-        FFmpegProbeResult in = ffprobe.probe(path);
-        return (int) in.getFormat().duration;
-    }
 }

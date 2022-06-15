@@ -13,17 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SocketServer {
-    private static ServerSocket server;
     private static final Logger log = LogManager.getLogger(ServerSocket.class);
     private static Socket socket;
     private static VideoProperty.Resolution recommendedResolution;
-    private static List<String> commands = new ArrayList<>();
+    private static final List<String> commands = new ArrayList<>();
     //create a server socket and listen for incoming connections
 
     public static void startServer(int port) {
 
         try {
-            server = new ServerSocket(port);
+            ServerSocket server = new ServerSocket(port);
 
             while (true) {
                 socket = server.accept();
@@ -63,7 +62,7 @@ public class SocketServer {
                         return;
                 } else if (received.startsWith("2#")) {
                     String[] split = received.split("#");
-                    String selectedProtocol = handleVideoPlayback(split[1], split[2]);
+                    String selectedProtocol = handleVideoPlayback(split[2]);
                     writer.println("PLAY#" + selectedProtocol + "#" + Config.streamport);
                     writer.flush();
                     handleStream(split[1], VideoProperty.convertProtocol(selectedProtocol));
@@ -127,7 +126,7 @@ public class SocketServer {
         return output;
     }
 
-    private static String handleVideoPlayback(String selectedName, String protocol) {
+    private static String handleVideoPlayback(String protocol) {
         //convert output to lower case
         String temp = protocol.toLowerCase();
         VideoProperty.Protocol protocolType = null;
